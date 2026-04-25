@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = 'https://vcbcftlykgpvgwqwyzzf.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZjYmNmdGx5a2dwdmd3cXd5enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTc0ODEsImV4cCI6MjA5MjUzMzQ4MX0.gm1t9ZBwPfU_F5_6XubTJOi77iFj1QXwIHOMtaeZZl8';
+// הגדרת סופהבייס
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://vcbcftlykgpvgwqwyzzf.supabase.co';
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZjYmNmdGx5a2dwdmd3cXd5enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTc0ODEsImV4cCI6MjA5MjUzMzQ4MX0.gm1t9ZBwPfU_F5_6XubTJOi77iFj1QXwIHOMtaeZZl8';
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const BOT_URL = 'https://humped-defection-smugness.ngrok-free.dev/run-bot';
 
 function App() {
   const [session, setSession] = useState(null);
@@ -142,28 +145,29 @@ function Register() {
 function Generator({ user }) {
   const [status, setStatus] = useState('');
   const runBot = async () => {
-    setStatus('🤖 הבוט התחיל לעבוד...');
+    setStatus('🤖 הבוט התחיל לעבוד... המתן לפתיחת הדפדפן במחשב של אמיר');
     try {
-      const res = await fetch('http://localhost:3001/run-bot', {
+      const res = await fetch(BOT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: user.id })
       });
       const result = await res.json();
       setStatus(result.success ? '✅ המשתמש נוצר בהצלחה!' : '❌ תקלה');
-    } catch (e) { setStatus('❌ וודא ששרת הבוט רץ'); }
+    } catch (e) { 
+      setStatus('❌ שגיאה: וודא ש-ngrok ושרת הבוט רצים במחשב של אמיר'); 
+    }
   };
   return (
     <div style={glassCard}>
       <h1>⚡ מחולל</h1>
       <p>שלום, {user.email}</p>
       <button onClick={runBot} style={genActionBtn}>🚀 צור משתמש חדש</button>
-      <p>{status}</p>
+      <p style={{marginTop: '20px', fontWeight: '500', color: '#818cf8'}}>{status}</p>
     </div>
   );
 }
 
-// --- 👥 דף ניהול משתמשים המעודכן ---
 function MyUsers({ user }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -196,12 +200,17 @@ function MyUsers({ user }) {
     }
   };
 
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    alert('הועתק ללוח!');
+  };
+
   useEffect(() => {
     fetchUsers();
   }, [user]);
 
   return (
-    <div style={{ width: '100%', maxWidth: '1100px', margin: 'auto', padding: '20px' }}>
+    <div style={{ width: '100%', maxWidth: '1200px', margin: 'auto', padding: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <button onClick={fetchUsers} style={refreshBtn}>🔄 רענן רשימה</button>
         <h1 style={cardTitle}>📋 המשתמשים שלי ({users.length})</h1>
@@ -212,25 +221,39 @@ function MyUsers({ user }) {
           <table style={modernTable}>
             <thead>
               <tr>
-                <th style={thStyle}>שם</th>
+                <th style={thStyle}>תאריך</th>
+                <th style={thStyle}>שם מלא</th>
                 <th style={thStyle}>אימייל</th>
+                <th style={thStyle}>סיסמה</th>
                 <th style={thStyle}>פעולות</th>
               </tr>
             </thead>
             <tbody>
               {users.length > 0 ? users.map(u => (
                 <tr key={u.id}>
+                  <td style={tdStyle}>{new Date(u.created_at).toLocaleDateString('he-IL')}</td>
                   <td style={tdStyle}>{u.full_name || 'אמיר שאול'}</td>
-                  <td style={tdStyle}>{u.terminal_email}</td>
+                  <td style={tdStyle}>
+                    <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
+                      {u.terminal_email}
+                      <button onClick={() => copyToClipboard(u.terminal_email)} style={miniCopyBtn}>📋</button>
+                    </div>
+                  </td>
+                  <td style={tdStyle}>
+                     <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
+                      {u.terminal_password || '********'}
+                      <button onClick={() => copyToClipboard(u.terminal_password)} style={miniCopyBtn}>📋</button>
+                    </div>
+                  </td>
                   <td style={tdStyle}>
                     <div style={{ display: 'flex', gap: '10px' }}>
                       <a href={u.inbox_url} target="_blank" rel="noreferrer" style={actionBtn}>📂 מייל</a>
-                      <button onClick={() => deleteUser(u.id)} style={deleteBtn}>🗑️ מחק</button>
+                      <button onClick={() => deleteUser(u.id)} style={deleteBtn}>🗑️</button>
                     </div>
                   </td>
                 </tr>
               )) : (
-                <tr><td colSpan="3" style={{padding: '40px', textAlign: 'center', color: '#94a3b8'}}>לא נמצאו משתמשים.</td></tr>
+                <tr><td colSpan="5" style={{padding: '40px', textAlign: 'center', color: '#94a3b8'}}>לא נמצאו משתמשים.</td></tr>
               )}
             </tbody>
           </table>
@@ -249,20 +272,17 @@ const linkStyle = { color: '#94a3b8', textDecoration: 'none', fontWeight: '500' 
 const registerNavBtn = { background: '#fff', color: '#000', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' };
 const logoutBtn = { background: '#ef4444', color: 'white', border: 'none', padding: '8px 18px', borderRadius: '8px', cursor: 'pointer' };
 const mainContainer = { paddingTop: '80px', width: '100%' };
-
 const heroFullSection = { height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', background: 'radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%)', padding: '0 20px' };
 const heroTitle = { fontSize: '80px', fontWeight: '900', lineHeight: '1.1', marginBottom: '20px' };
 const gradientText = { background: 'linear-gradient(90deg, #6366f1, #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' };
 const heroSub = { fontSize: '24px', color: '#94a3b8', marginBottom: '40px', maxWidth: '800px' };
 const badge = { background: 'rgba(99, 102, 241, 0.2)', color: '#818cf8', padding: '6px 15px', borderRadius: '20px', marginBottom: '20px', fontWeight: 'bold' };
-
 const featuresSection = { padding: '100px 60px', background: '#0f172a', textAlign: 'center' };
 const sectionTitle = { fontSize: '42px', fontWeight: '800', marginBottom: '60px' };
 const featuresGrid = { display: 'flex', gap: '30px', justifyContent: 'center', flexWrap: 'wrap' };
 const featureCard = { background: 'rgba(30, 41, 59, 0.5)', padding: '40px', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.1)', width: '300px' };
 const featureIcon = { fontSize: '40px', marginBottom: '20px' };
 const footerStyle = { padding: '50px', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.1)', color: '#475569' };
-
 const glassCard = { background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '24px', padding: '40px', width: '100%', maxWidth: '450px', margin: '100px auto', textAlign: 'center' };
 const cardTitle = { fontSize: '32px', fontWeight: '800', marginBottom: '20px' };
 const primaryBtn = { background: '#6366f1', color: '#fff', padding: '16px 40px', borderRadius: '12px', border: 'none', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' };
@@ -273,13 +293,11 @@ const modernTable = { width: '100%', borderCollapse: 'collapse' };
 const thStyle = { padding: '20px', background: 'rgba(255,255,255,0.03)', textAlign: 'right', color: '#94a3b8' };
 const tdStyle = { padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.05)' };
 const actionBtn = { color: '#6366f1', textDecoration: 'none', fontWeight: 'bold', background: 'rgba(99, 102, 241, 0.1)', padding: '6px 12px', borderRadius: '10px' };
-
-// עיצוב כפתור מחיקה ורענון
 const deleteBtn = { background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '6px 12px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' };
 const refreshBtn = { background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', border: '1px solid #6366f1', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' };
-
 const inputStyle = { width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(15, 23, 42, 0.6)', color: '#fff', fontSize: '16px', marginBottom: '15px', boxSizing: 'border-box' };
 const formStyle = { display: 'flex', flexDirection: 'column' };
 const superBtnStyle = { background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: '#fff', padding: '16px', borderRadius: '12px', border: 'none', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' };
+const miniCopyBtn = { background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', padding: '0', marginLeft: '5px' };
 
 export default App;

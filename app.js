@@ -49,14 +49,27 @@ async function runBotLogic(userId) {
 
         await page.click('label:has-text("גברים")', { force: true });
         
+        // --- עדכון סימון התיבות (ווי בכולן) ---
         await page.evaluate(() => {
-            const terms = document.querySelector('input[name="agreements"]');
-            const sub = document.querySelector('input[name="is_subscribed"]');
-            if (terms && !terms.checked) terms.click();
-            if (sub && !sub.checked) sub.click();
+            // מוצא את כל ה-Checkboxes בדף
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                // לוחץ רק אם לא מסומן כבר
+                if (!cb.checked) {
+                    cb.click();
+                }
+            });
         });
 
-        // 4. לחיצה על כפתור ההרשמה
+        // ליתר ביטחון, לחיצה מפורשת לפי ה-ID והשם כדי שלא יתפספס
+        try {
+            await page.locator('input[name="agreements"]').check({ force: true });
+            await page.locator('input[name="is_subscribed"]').check({ force: true });
+        } catch (e) {
+            console.log("סימון תיבות נוסף בוצע");
+        }
+        // ------------------------------------
+
         await page.waitForTimeout(1000);
         const submitBtn = page.locator('.submit-btn_1KTI');
         await submitBtn.click({ force: true });
@@ -64,19 +77,17 @@ async function runBotLogic(userId) {
         console.log("⏳ ממתין לזיהוי כניסה מוצלחת (פתור קאפצ'ה אם צריך)...");
 
         try {
-            // התיקון הגמיש: מחפשים "שלום" או "הי" או שהכתובת מכילה account
             await Promise.race([
                 page.waitForFunction(() => 
                     document.body.innerText.includes('שלום') || 
                     document.body.innerText.includes('הי') || 
                     window.location.href.includes('account')
-                , { timeout: 120000 }), // 2 דקות המתנה לפתרון קאפצ'ה
+                , { timeout: 120000 }), 
                 page.waitForURL('**/customer/account/**', { timeout: 120000 })
             ]);
 
             console.log("✅ הכניסה זוהתה! שומר נתונים לסופהבייס...");
 
-            // שמירה לסופהבייס רק אחרי זיהוי הצלחה
             const { error } = await supabase.from('coupons').insert([{ 
                 terminal_email: email, 
                 terminal_password: password, 
