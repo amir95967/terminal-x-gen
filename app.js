@@ -13,8 +13,8 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const getRandomIdentity = () => {
-    const firstNames = ['Itay', 'Noam', 'Yossi', 'Omer', 'Dani', 'Eyal', 'Guy', 'Tomer', 'Amit', 'Niv', 'Idan', 'Amir'];
-    const lastNames = ['Mizrahi', 'Peretz', 'Azulay', 'Katz', 'Halevi', 'Levi', 'Cohen', 'Biton', 'Golan', 'Shaul'];
+    const firstNames = ['Itay', 'Noam', 'Yossi', 'Omer', 'Dani', 'Eyal', 'Guy', 'Tomer', 'Amit', 'Niv', 'Idan', 'shahar', 'Lior', 'Ori', 'Erez', 'Yair', 'Tal', 'Shay', 'Alon', 'shaked'];
+    const lastNames = ['Mizrahi', 'Peretz', 'Azulay', 'Katz', 'Halevi', 'Levi', 'Cohen', 'Biton', 'Golan', 'jhonson', 'Smith', 'Doe', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson', 'Thomas'];
     return { 
         first: firstNames[Math.floor(Math.random() * firstNames.length)], 
         last: lastNames[Math.floor(Math.random() * lastNames.length)] 
