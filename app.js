@@ -12,83 +12,108 @@ const SUPABASE_URL = 'https://vcbcftlykgpvgwqwyzzf.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZjYmNmdGx5a2dwdmd3cXd5enpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTc0ODEsImV4cCI6MjA5MjUzMzQ4MX0.gm1t9ZBwPfU_F5_6XubTJOi77iFj1QXwIHOMtaeZZl8'; 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const getRandomName = () => {
-    const firstNames = ['Amir', 'Itay', 'Noam', 'Yossi', 'Omer', 'Dani', 'Guy', 'Eyal', 'Tomer'];
-    const lastNames = ['Shaul', 'Levi', 'Cohen', 'Mizrahi', 'Peretz', 'Azulay', 'Katz', 'Halevi'];
-    return { first: firstNames[Math.floor(Math.random() * firstNames.length)], last: lastNames[Math.floor(Math.random() * lastNames.length)] };
+const getRandomIdentity = () => {
+    const firstNames = ['Itay', 'Noam', 'Yossi', 'Omer', 'Dani', 'Eyal', 'Guy', 'Tomer', 'Amit', 'Niv', 'Idan', 'Amir'];
+    const lastNames = ['Mizrahi', 'Peretz', 'Azulay', 'Katz', 'Halevi', 'Levi', 'Cohen', 'Biton', 'Golan', 'Shaul'];
+    return { 
+        first: firstNames[Math.floor(Math.random() * firstNames.length)], 
+        last: lastNames[Math.floor(Math.random() * lastNames.length)] 
+    };
 };
 
-const getRandomPhone = () => '05' + Math.floor(20000000 + Math.random() * 79999999).toString().substring(0, 8);
-
-async function runBotLogic() {
-    console.log("🚀 מתחיל את הבוט...");
+async function runBotLogic(userId) {
+    console.log(`🤖 הבוט מתחיל למלא פרטים עבור משתמש: ${userId}`);
     const browser = await chromium.launch({ headless: false }); 
-    const context = await browser.newContext({
-        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
-    });
+    const context = await browser.newContext();
     const page = await context.newPage();
     
-    const name = getRandomName();
-    const phone = getRandomPhone();
+    const identity = getRandomIdentity();
+    const fullName = `${identity.first} ${identity.last}`;
     const emailPrefix = `amir${Math.random().toString(36).substring(2, 7)}`;
     const email = `${emailPrefix}@maildrop.cc`;
     const password = "Amir" + Math.floor(1000 + Math.random() * 9000) + "!";
-    const birthday = "01051995";
 
     try {
         await page.goto('https://www.terminalx.com/women?auth=register', { waitUntil: 'networkidle' });
-        await page.waitForSelector('#qa-register-email-input', { timeout: 15000 });
 
-        // מילוי פרטים בשיטה האנושית שלך
-        const forceFill = async (selector, value) => {
-            const el = page.locator(selector).last();
-            await el.focus();
-            await el.fill("");
-            for (const char of value) {
-                await page.keyboard.type(char, { delay: Math.random() * 30 + 20 });
-            }
-            await page.keyboard.press('Tab');
-        };
+        await page.fill('#qa-register-email-input', email);
+        await page.fill('#qa-register-firstname-input', identity.first);
+        await page.fill('#qa-register-lastname-input', identity.last);
+        await page.fill('#qa-register-telephone-input', '05' + Math.floor(20000000 + Math.random() * 70000000));
+        await page.fill('#qa-register-date_of_birth-input', '01051995');
 
-        await forceFill('#qa-register-email-input', email);
-        await forceFill('#qa-register-firstname-input', name.first);
-        await forceFill('#qa-register-lastname-input', name.last);
-        await forceFill('#qa-register-telephone-input', phone);
-        await forceFill('#qa-register-date_of_birth-input', birthday);
-        await forceFill('#qa-register-password-input', password);
+        const passField = page.locator('#qa-register-password-input');
+        await passField.click();
+        await page.keyboard.type(password, { delay: 120 });
+        await page.keyboard.press('Tab');
 
         await page.click('label:has-text("גברים")', { force: true });
         
         await page.evaluate(() => {
-            document.querySelectorAll('input[type="checkbox"]').forEach(cb => { if(!cb.checked) cb.click(); });
+            const terms = document.querySelector('input[name="agreements"]');
+            const sub = document.querySelector('input[name="is_subscribed"]');
+            if (terms && !terms.checked) terms.click();
+            if (sub && !sub.checked) sub.click();
         });
 
-        console.log("🖱️ שולח טופס...");
-        await page.keyboard.press('Enter');
+        // 4. לחיצה על כפתור ההרשמה
+        await page.waitForTimeout(1000);
+        const submitBtn = page.locator('.submit-btn_1KTI');
+        await submitBtn.click({ force: true });
 
-        console.log("⏳ בודק אם עלה CAPTCHA. פתור אותו ידנית עכשיו!");
-        
-        // הבוט מחכה עד לזיהוי הצלחה (מעבר דף)
-        await page.waitForURL('**/customer/account/**', { timeout: 120000 });
-        
-        console.log("💾 שומר לסופהבייס...");
-        await supabase.from('coupons').insert([{ 
-            terminal_email: email, 
-            terminal_password: password, 
-            inbox_url: `https://maildrop.cc/inbox/?mailbox=${emailPrefix}` 
-        }]);
+        console.log("⏳ ממתין לזיהוי כניסה מוצלחת (פתור קאפצ'ה אם צריך)...");
 
-        return { success: true, email };
+        try {
+            // התיקון הגמיש: מחפשים "שלום" או "הי" או שהכתובת מכילה account
+            await Promise.race([
+                page.waitForFunction(() => 
+                    document.body.innerText.includes('שלום') || 
+                    document.body.innerText.includes('הי') || 
+                    window.location.href.includes('account')
+                , { timeout: 120000 }), // 2 דקות המתנה לפתרון קאפצ'ה
+                page.waitForURL('**/customer/account/**', { timeout: 120000 })
+            ]);
+
+            console.log("✅ הכניסה זוהתה! שומר נתונים לסופהבייס...");
+
+            // שמירה לסופהבייס רק אחרי זיהוי הצלחה
+            const { error } = await supabase.from('coupons').insert([{ 
+                terminal_email: email, 
+                terminal_password: password, 
+                inbox_url: `https://maildrop.cc/inbox/?mailbox=${emailPrefix}`,
+                full_name: fullName,
+                user_id: userId,
+                created_at: new Date().toISOString()
+            }]);
+
+            if (error) {
+                console.error("❌ שגיאה בשמירה לסופהבייס:", error.message);
+            } else {
+                console.log("⭐ הצלחה! המשתמש נשמר ויופיע באתר שלך.");
+            }
+
+            return { success: true, email };
+
+        } catch (timeoutErr) {
+            console.error("❌ הבוט לא זיהה כניסה (Time Out). וודא שפתרת את הקאפצ'ה והגעת לדף החשבון.");
+            return { success: false, error: "timeout" };
+        }
+
     } catch (err) {
+        console.error("⚠️ תקלה כללית בבוט:", err.message);
         return { success: false, error: err.message };
-    } finally {
-        setTimeout(() => browser.close(), 5000);
     }
 }
 
 app.post('/run-bot', async (req, res) => {
-    const result = await runBotLogic();
+    const { userId } = req.body; 
+    
+    if (!userId) {
+        return res.status(400).json({ success: false, error: "Missing userId" });
+    }
+
+    const result = await runBotLogic(userId);
     res.json(result);
 });
 
-app.listen(3001, () => console.log("🌐 הבוט מחכה בפורט 3001"));
+app.listen(3001, () => console.log("🌐 השרת רץ על פורט 3001 - מוכן לייצור משתמשים!"));
