@@ -61,7 +61,7 @@ function Home({ session }) {
         <div style={badge}>הגרסה החדשה 2.0 כבר כאן 🚀</div>
         <h1 style={heroTitle}>ייצור משתמשים <br /><span style={gradientText}>במהירות האור.</span></h1>
         <p style={heroSub}>המערכת המתקדמת ביותר לניהול ואוטומציית חשבונות טרמינל X.</p>
-        <div style={{ display: 'flex', gap: '20px', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
           {session ? (
             <Link to="/generator"><button style={primaryBtn}>אל המחולל שלי</button></Link>
           ) : (
@@ -265,33 +265,33 @@ function MyUsers({ user }) {
 
 // --- 🎨 Styles ---
 const globalWrapper = { minHeight: '100vh', background: '#0f172a', color: '#f8fafc', fontFamily: 'system-ui, sans-serif', overflowX: 'hidden' };
-const navStyle = { display: 'flex', justifyContent: 'space-between', padding: '20px 60px', background: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', position: 'fixed', width: '100%', top: 0, zIndex: 1000, boxSizing: 'border-box' };
+const navStyle = { display: 'flex', justifyContent: 'space-between', padding: '20px', background: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(10px)', borderBottom: '1px solid rgba(255, 255, 255, 0.1)', position: 'fixed', width: '100%', top: 0, zIndex: 1000, boxSizing: 'border-box', flexWrap: 'wrap', gap: '12px' };
 const logoStyle = { fontSize: '24px', fontWeight: '900', color: '#fff', textDecoration: 'none' };
-const navLinks = { display: 'flex', gap: '25px', alignItems: 'center' };
+const navLinks = { display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' };
 const linkStyle = { color: '#94a3b8', textDecoration: 'none', fontWeight: '500' };
 const registerNavBtn = { background: '#fff', color: '#000', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' };
 const logoutBtn = { background: '#ef4444', color: 'white', border: 'none', padding: '8px 18px', borderRadius: '8px', cursor: 'pointer' };
-const mainContainer = { paddingTop: '80px', width: '100%' };
-const heroFullSection = { height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', background: 'radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%)', padding: '0 20px' };
-const heroTitle = { fontSize: '80px', fontWeight: '900', lineHeight: '1.1', marginBottom: '20px' };
+const mainContainer = { paddingTop: '100px', width: '100%', boxSizing: 'border-box' };
+const heroFullSection = { minHeight: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', background: 'radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%)', padding: '0 20px' };
+const heroTitle = { fontSize: 'clamp(2.5rem, 7vw, 5.5rem)', fontWeight: '900', lineHeight: '1.1', marginBottom: '20px' };
 const gradientText = { background: 'linear-gradient(90deg, #6366f1, #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' };
-const heroSub = { fontSize: '24px', color: '#94a3b8', marginBottom: '40px', maxWidth: '800px' };
+const heroSub = { fontSize: 'clamp(1rem, 2.5vw, 1.5rem)', color: '#94a3b8', marginBottom: '40px', maxWidth: '700px' };
 const badge = { background: 'rgba(99, 102, 241, 0.2)', color: '#818cf8', padding: '6px 15px', borderRadius: '20px', marginBottom: '20px', fontWeight: 'bold' };
-const featuresSection = { padding: '100px 60px', background: '#0f172a', textAlign: 'center' };
-const sectionTitle = { fontSize: '42px', fontWeight: '800', marginBottom: '60px' };
-const featuresGrid = { display: 'flex', gap: '30px', justifyContent: 'center', flexWrap: 'wrap' };
-const featureCard = { background: 'rgba(30, 41, 59, 0.5)', padding: '40px', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.1)', width: '300px' };
+const featuresSection = { padding: '80px 20px', background: '#0f172a', textAlign: 'center' };
+const sectionTitle = { fontSize: 'clamp(2rem, 3vw, 3rem)', fontWeight: '800', marginBottom: '60px' };
+const featuresGrid = { display: 'flex', gap: '24px', justifyContent: 'center', flexWrap: 'wrap' };
+const featureCard = { background: 'rgba(30, 41, 59, 0.5)', padding: '30px', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.1)', width: '100%', maxWidth: '320px', boxSizing: 'border-box' };
 const featureIcon = { fontSize: '40px', marginBottom: '20px' };
-const footerStyle = { padding: '50px', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.1)', color: '#475569' };
-const glassCard = { background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '24px', padding: '40px', width: '100%', maxWidth: '450px', margin: '100px auto', textAlign: 'center' };
-const cardTitle = { fontSize: '32px', fontWeight: '800', marginBottom: '20px' };
-const primaryBtn = { background: '#6366f1', color: '#fff', padding: '16px 40px', borderRadius: '12px', border: 'none', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' };
-const secondaryBtn = { background: 'transparent', color: '#fff', padding: '16px 40px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer' };
-const genActionBtn = { padding: '20px', background: '#ffeb3b', color: '#000', fontSize: '20px', fontWeight: '900', border: 'none', borderRadius: '15px', cursor: 'pointer', width: '100%' };
-const tableWrapper = { background: 'rgba(30, 41, 59, 0.4)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', overflow: 'hidden', margin: '40px 0' };
-const modernTable = { width: '100%', borderCollapse: 'collapse' };
-const thStyle = { padding: '20px', background: 'rgba(255,255,255,0.03)', textAlign: 'right', color: '#94a3b8' };
-const tdStyle = { padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.05)' };
+const footerStyle = { padding: '40px 20px', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.1)', color: '#475569' };
+const glassCard = { background: 'rgba(30, 41, 59, 0.5)', backdropFilter: 'blur(16px)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '24px', padding: '30px 20px', width: '100%', maxWidth: '450px', margin: '100px auto', textAlign: 'center', boxSizing: 'border-box' };
+const cardTitle = { fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', fontWeight: '800', marginBottom: '20px' };
+const primaryBtn = { background: '#6366f1', color: '#fff', padding: '14px 28px', borderRadius: '12px', border: 'none', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', minWidth: '160px' };
+const secondaryBtn = { background: 'transparent', color: '#fff', padding: '14px 28px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', minWidth: '160px' };
+const genActionBtn = { padding: '18px', background: '#ffeb3b', color: '#000', fontSize: '1rem', fontWeight: '900', border: 'none', borderRadius: '15px', cursor: 'pointer', width: '100%' };
+const tableWrapper = { background: 'rgba(30, 41, 59, 0.4)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', overflow: 'auto', margin: '40px 0' };
+const modernTable = { width: '100%', borderCollapse: 'collapse', minWidth: '600px' };
+const thStyle = { padding: '16px', background: 'rgba(255,255,255,0.03)', textAlign: 'right', color: '#94a3b8' };
+const tdStyle = { padding: '16px', borderBottom: '1px solid rgba(255,255,255,0.05)' };
 const actionBtn = { color: '#6366f1', textDecoration: 'none', fontWeight: 'bold', background: 'rgba(99, 102, 241, 0.1)', padding: '6px 12px', borderRadius: '10px' };
 const deleteBtn = { background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '6px 12px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' };
 const refreshBtn = { background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', border: '1px solid #6366f1', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' };

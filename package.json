@@ -24,5 +24,13 @@
     "@vitejs/plugin-react": "^4.2.1",
     "concurrently": "^9.2.1",
     "vite": "^5.2.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amir95967/terminal-x-gen.git"
+  },
+  "bugs": {
+    "url": "https://github.com/amir95967/terminal-x-gen/issues"
+  },
+  "homepage": "https://github.com/amir95967/terminal-x-gen#readme"
 }
