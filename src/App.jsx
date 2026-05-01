@@ -21,6 +21,7 @@ function App() {
   return (
     <Router>
       <div style={globalWrapper}>
+        <style>{mobileTableStyles}</style>
         <nav style={navStyle} dir="rtl">
           <Link to="/" style={logoStyle}>TERMINAL<span style={{color: '#6366f1'}}>X</span> GEN</Link>
           <div style={navLinks}>
@@ -210,15 +211,15 @@ function MyUsers({ user }) {
   }, [user]);
 
   return (
-    <div style={{ width: '100%', maxWidth: '1200px', margin: 'auto', padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+    <div className="myusers-page" style={{ width: '100%', maxWidth: '1200px', margin: 'auto', padding: '20px' }}>
+      <div className="myusers-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '20px' }}>
         <button onClick={fetchUsers} style={refreshBtn}>🔄 רענן רשימה</button>
-        <h1 style={cardTitle}>📋 המשתמשים שלי ({users.length})</h1>
+        <h1 className="myusers-title" style={cardTitle}>📋 המשתמשים שלי ({users.length})</h1>
       </div>
       
-      <div style={tableWrapper}>
+      <div className="myusers-table-wrapper" style={tableWrapper}>
         {loading ? <p style={{padding: '20px', textAlign: 'center'}}>טוען נתונים...</p> : (
-          <table style={modernTable}>
+          <table className="myusers-table" style={modernTable}>
             <thead>
               <tr>
                 <th style={thStyle}>תאריך</th>
@@ -231,22 +232,22 @@ function MyUsers({ user }) {
             <tbody>
               {users.length > 0 ? users.map(u => (
                 <tr key={u.id}>
-                  <td style={tdStyle}>{new Date(u.created_at).toLocaleDateString('he-IL')}</td>
-                  <td style={tdStyle}>{u.full_name || 'אמיר שאול'}</td>
-                  <td style={tdStyle}>
-                    <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
-                      {u.terminal_email}
+                  <td style={tdStyle} data-label="תאריך">{new Date(u.created_at).toLocaleDateString('he-IL')}</td>
+                  <td style={tdStyle} data-label="שם מלא">{u.full_name || 'אמיר שאול'}</td>
+                  <td style={tdStyle} data-label="אימייל">
+                    <div style={{display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap'}}>
+                      <span>{u.terminal_email}</span>
                       <button onClick={() => copyToClipboard(u.terminal_email)} style={miniCopyBtn}>📋</button>
                     </div>
                   </td>
-                  <td style={tdStyle}>
-                     <div style={{display: 'flex', alignItems: 'center', gap: '5px'}}>
-                      {u.terminal_password || '********'}
+                  <td style={tdStyle} data-label="סיסמה">
+                     <div style={{display: 'flex', alignItems: 'center', gap: '5px', flexWrap: 'wrap'}}>
+                      <span>{u.terminal_password || '********'}</span>
                       <button onClick={() => copyToClipboard(u.terminal_password)} style={miniCopyBtn}>📋</button>
                     </div>
                   </td>
-                  <td style={tdStyle}>
-                    <div style={{ display: 'flex', gap: '10px' }}>
+                  <td style={tdStyle} data-label="פעולות">
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                       <a href={u.inbox_url} target="_blank" rel="noreferrer" style={actionBtn}>📂 מייל</a>
                       <button onClick={() => deleteUser(u.id)} style={deleteBtn}>🗑️</button>
                     </div>
@@ -288,13 +289,30 @@ const cardTitle = { fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', fontWeight: '800', m
 const primaryBtn = { background: '#6366f1', color: '#fff', padding: '14px 28px', borderRadius: '12px', border: 'none', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', minWidth: '160px' };
 const secondaryBtn = { background: 'transparent', color: '#fff', padding: '14px 28px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)', fontSize: '18px', fontWeight: 'bold', cursor: 'pointer', minWidth: '160px' };
 const genActionBtn = { padding: '18px', background: '#ffeb3b', color: '#000', fontSize: '1rem', fontWeight: '900', border: 'none', borderRadius: '15px', cursor: 'pointer', width: '100%' };
-const tableWrapper = { background: 'rgba(30, 41, 59, 0.4)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', overflow: 'auto', margin: '40px 0' };
-const modernTable = { width: '100%', borderCollapse: 'collapse', minWidth: '600px' };
+const tableWrapper = { background: 'rgba(30, 41, 59, 0.4)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.1)', overflow: 'hidden', margin: '40px auto', padding: '16px', maxWidth: '100%', boxSizing: 'border-box', boxShadow: '0 10px 40px rgba(15,23,42,0.2)' };
+const modernTable = { width: '100%', borderCollapse: 'collapse', minWidth: '0', margin: '0 auto', maxWidth: '100%' };
 const thStyle = { padding: '16px', background: 'rgba(255,255,255,0.03)', textAlign: 'right', color: '#94a3b8' };
 const tdStyle = { padding: '16px', borderBottom: '1px solid rgba(255,255,255,0.05)' };
 const actionBtn = { color: '#6366f1', textDecoration: 'none', fontWeight: 'bold', background: 'rgba(99, 102, 241, 0.1)', padding: '6px 12px', borderRadius: '10px' };
 const deleteBtn = { background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '6px 12px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' };
 const refreshBtn = { background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', border: '1px solid #6366f1', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold' };
+const mobileTableStyles = `
+  @media (max-width: 760px) {
+    .myusers-header { flex-direction: column; align-items: stretch; }
+    .myusers-header button { width: 100%; max-width: none; }
+    .myusers-title { margin: 0; }
+    .myusers-table-wrapper { padding: 12px; }
+    .myusers-table { min-width: 0 !important; width: 100% !important; border: none; }
+    .myusers-table thead { display: none; }
+    .myusers-table tbody tr { display: block; margin-bottom: 18px; border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 18px; background: rgba(15, 23, 42, 0.9); padding: 14px; }
+    .myusers-table tbody tr td { display: block; width: 100%; padding: 10px 0; text-align: right; border-bottom: none; }
+    .myusers-table tbody tr td:not(:last-child) { border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .myusers-table tbody tr td::before { content: attr(data-label); display: block; margin-bottom: 8px; color: #94a3b8; font-size: 0.95rem; font-weight: 600; }
+    .myusers-table tbody tr td > div { justify-content: flex-start; gap: 10px; }
+    .myusers-table tbody tr td > div span { overflow-wrap: anywhere; }
+    .myusers-table tbody tr td:last-child { padding-bottom: 0; }
+  }
+`;
 const inputStyle = { width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(15, 23, 42, 0.6)', color: '#fff', fontSize: '16px', marginBottom: '15px', boxSizing: 'border-box' };
 const formStyle = { display: 'flex', flexDirection: 'column' };
 const superBtnStyle = { background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: '#fff', padding: '16px', borderRadius: '12px', border: 'none', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer' };
